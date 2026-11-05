@@ -117,11 +117,20 @@ public class FASTAReaderThreads {
 	public List<Integer> search(byte[] pattern) {
 		int cores = Runtime.getRuntime().availableProcessors();// iDENTIFICA CUANTOS CORES PUEDO TENER
 		ExecutorService executor = Executors.newFixedThreadPool(cores); //CREO EL EJECUTOR
-		for(int i=0; i<cores; i++) {
+		int tamTarea = validBytes/cores;
+		List<Future<List<Integer>>> futuros = new ArrayList<>();
+		for(int i=0; i< cores-1; i++) { // Creo tantas tareas como cores, menos la última porque esta puede que no tenga el mismo rango
+			int lo = i*tamTarea;
+			int hi = (i+1)*tamTarea;
+			FASTASearchCallable tarea = new FASTASearchCallable(this, lo, hi, pattern);
+			Future<List<Integer>> futuro= executor.submit(tarea);
+			futuros.add(futuro);
 			
 		}
+		
 		// METO LAS TAREAS Y TENGO QUE CALCULAR EL RANGO, CUANDO LAS TENGA TENGO QUE METER LOS RANGOS EN SUBMIT
-		Future<Integer> futuro = executor.submit(null); // ME DA LA SOLUCIÓN
+		
+		  // ME DA LA SOLUCIÓN
 		futuro.get(); //Lo guardo en lista de soluciones, tendré que juntar esas listas en una y luego devolverla
 		executor.shutdown();
 	}
