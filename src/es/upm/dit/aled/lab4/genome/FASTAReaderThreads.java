@@ -115,9 +115,17 @@ public class FASTAReaderThreads {
 	 *         pattern in the data.
 	 */
 	public List<Integer> search(byte[] pattern) {
-		// TODO
-		return null;
+		int cores = Runtime.getRuntime().availableProcessors();// iDENTIFICA CUANTOS CORES PUEDO TENER
+		ExecutorService executor = Executors.newFixedThreadPool(cores); //CREO EL EJECUTOR
+		for(int i=0; i<cores; i++) {
+			
+		}
+		// METO LAS TAREAS Y TENGO QUE CALCULAR EL RANGO, CUANDO LAS TENGA TENGO QUE METER LOS RANGOS EN SUBMIT
+		Future<Integer> futuro = executor.submit(null); // ME DA LA SOLUCIÓN
+		futuro.get(); //Lo guardo en lista de soluciones, tendré que juntar esas listas en una y luego devolverla
+		executor.shutdown();
 	}
+
 
 	public static void main(String[] args) {
 		long t1 = System.nanoTime();

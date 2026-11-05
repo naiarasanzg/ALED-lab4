@@ -11,8 +11,8 @@ import java.util.Objects;
  */
 public class Transfer {
 
-	private Area to;
-	private int time;
+	private Area to; //Area al que va
+	private int time; //Tiempo en ir de un área a otra
 
 	/**
 	 * Builds a new Transfer.

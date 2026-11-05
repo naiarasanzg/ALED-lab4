@@ -12,8 +12,8 @@ import java.util.concurrent.Callable;
  * @author rgarciacarmona
  *
  */
-public class FASTASearchCallable implements Callable<List<Integer>> {
-
+public class FASTASearchCallable implements Callable<List<Integer>> { //Recuerda que interfaz callable tiene en cuenta a la clase como uns tarea, en este caaso devuelve iuntegers con los que encontró coincidencias.
+	// Cada tarea tiene su índice, que no hay que confundir con el núcleo
 	private FASTAReaderThreads reader;
 	private int lo;
 	private int hi;
@@ -31,7 +31,10 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	 * @param pattern The pattern to be found.
 	 */
 	public FASTASearchCallable(FASTAReaderThreads reader, int lo, int hi, byte[] pattern) {
-		// TODO
+		this.reader = reader;
+		this.lo = lo;
+		this.hi = hi;
+		this.pattern = pattern;
 	}
 
 	/**
@@ -43,9 +46,18 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	 *         pattern in the segment of content to be searched.
 	 */
 	@Override
-	public List<Integer> call() throws Exception {
-		// TODO
-		return null;
+	public List<Integer> call() throws Exception { //Búsqueda lineal sobre el rango lo,hi que me han dado
+		List<Integer> posInSec = new ArrayList<>();	
+		for(int i= lo; i<hi; i++) { //O(n)
+			try {
+				if(compare(pattern,i)) {
+				posInSec.add(i);
+				}
+			} catch (Exception FASTAException) {
+				break;
+			}
+		}
+		return posInSec;
 	}
 
 	/*
