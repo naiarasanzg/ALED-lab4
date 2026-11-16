@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -115,9 +116,13 @@ public class FASTAReaderThreads {
 	 *         pattern in the data.
 	 */
 	public List<Integer> search(byte[] pattern) {
-		int cores = Runtime.getRuntime().availableProcessors();// iDENTIFICA CUANTOS CORES PUEDO TENER
+		List<Integer> solucion = new ArrayList<>();
+		
+		int cores = Runtime.getRuntime().availableProcessors();// IDENTIFICA CUANTOS CORES PUEDO TENER
 		ExecutorService executor = Executors.newFixedThreadPool(cores); //CREO EL EJECUTOR
+		
 		int tamTarea = validBytes/cores;
+		
 		List<Future<List<Integer>>> futuros = new ArrayList<>();
 		for(int i=0; i< cores-1; i++) { // Creo tantas tareas como cores, menos la última porque esta puede que no tenga el mismo rango
 			int lo = i*tamTarea;
@@ -125,14 +130,24 @@ public class FASTAReaderThreads {
 			FASTASearchCallable tarea = new FASTASearchCallable(this, lo, hi, pattern);
 			Future<List<Integer>> futuro= executor.submit(tarea);
 			futuros.add(futuro);
-			
 		}
-		
-		// METO LAS TAREAS Y TENGO QUE CALCULAR EL RANGO, CUANDO LAS TENGA TENGO QUE METER LOS RANGOS EN SUBMIT
-		
-		  // ME DA LA SOLUCIÓN
-		futuro.get(); //Lo guardo en lista de soluciones, tendré que juntar esas listas en una y luego devolverla
+		// Creo la última tarea
+		int lo = (cores-1)*tamTarea;
+		int hi = validBytes;
+		FASTASearchCallable tarea = new FASTASearchCallable(this, lo, hi, pattern);
+		Future<List<Integer>> futuro= executor.submit(tarea);
+		futuros.add(futuro);
+
+		for(Future<List<Integer>> f: futuros) {
+			try {
+				solucion.addAll(f.get());
+			} catch (InterruptedException | ExecutionException e) {
+				break;
+			}
+		}
 		executor.shutdown();
+		
+		return solucion;
 	}
 
 
